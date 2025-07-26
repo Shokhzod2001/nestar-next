@@ -235,7 +235,7 @@ export const GET_AGENT_PROPERTIES = gql`
 
 export const GET_FAVORITES = gql`
 	query GetFavorites($input: OrdinaryInquiry!) {
-		getFavorites(input: $input) {
+		getFavorities(input: $input) {
 			list {
 				_id
 				propertyType
