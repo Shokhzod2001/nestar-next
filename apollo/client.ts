@@ -7,6 +7,7 @@ import { onError } from '@apollo/client/link/error';
 import { getJwtToken } from '../libs/auth';
 import { TokenRefreshLink } from 'apollo-link-token-refresh';
 import { sweetErrorAlert } from '../libs/sweetAlert';
+import { socketVar } from './store';
 let apolloClient: ApolloClient<NormalizedCacheObject>;
 
 function getHeaders() {
@@ -33,8 +34,8 @@ class LoggingWebSocket {
 	private socket: WebSocket;
 
 	constructor(url: string) {
-		this.socket = new WebSocket(url);
-
+		this.socket = new WebSocket(`${url}?token=${getJwtToken()}`);
+		socketVar(this.socket);
 		this.socket.onopen = () => {
 			console.log('WebSocket connection!');
 		};
@@ -56,6 +57,7 @@ class LoggingWebSocket {
 		this.socket.close();
 	}
 }
+
 function createIsomorphicLink() {
 	if (typeof window !== 'undefined') {
 		const authLink = new ApolloLink((operation, forward) => {
@@ -95,6 +97,7 @@ function createIsomorphicLink() {
 					if (!message.includes('input')) sweetErrorAlert(message);
 				});
 			}
+
 			if (networkError) console.log(`[Network error]: ${networkError}`);
 			// @ts-ignore
 			if (networkError?.statusCode === 401) {
